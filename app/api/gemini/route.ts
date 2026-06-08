@@ -1,30 +1,49 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { connectDB } from "@/app/lib/mongodb";
 
 export async function POST(req: Request) {
   try {
     const { prompt } = await req.json();
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const db = await connectDB();
 
-    const genAI = new GoogleGenerativeAI(apiKey!);
+    console.log("Database Connected Successfully");
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
-    });
+    await new Promise((resolve) => setTimeout(resolve, 2500));
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
+    const mockResponse = `
+PROBLEM ANALYSIS
+Your flight cancellation has disrupted the original travel itinerary.
+
+RECOVERY STEPS
+1. Rebook your flight
+2. Contact hotel support
+3. Use local transport
+
+UPDATED ITINERARY
+Day 1:
+Arrival and beach visit
+
+BUDGET TIPS
+Use local cafes and public transport.
+
+EMERGENCY ADVICE
+Keep backup copies of tickets.
+`;
 
     return Response.json({
-      text: response.text(),
+      text: mockResponse,
     });
 
-  } catch (err: any) {
-    console.error(err);
+  } catch (error: any) {
+    console.error(error);
 
     return Response.json(
-      { error: err.message },
-      { status: 500 }
+      {
+        error: "Something went wrong",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
